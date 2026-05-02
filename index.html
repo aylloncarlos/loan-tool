@@ -70,8 +70,8 @@
         }
 
         .nav-btn {
-            background-color: rgba(15, 23, 42, 0.7);
-            color: #f8fafc;
+            background-color: #d4af37;
+            color: #0f172a;
             border: none;
             border-radius: 50%;
             width: 45px;
@@ -84,12 +84,12 @@
             transition: 0.3s;
         }
 
-        .nav-btn:hover { background-color: #d4af37; transform: scale(1.1); }
+        .nav-btn:hover { background-color: #eab308; transform: scale(1.1); }
 
         .slide-counter {
             position: absolute;
             bottom: 35px;
-            left: 40px;
+            right: 120px;
             z-index: 100;
             color: #94a3b8;
             font-weight: 700;
@@ -147,14 +147,33 @@
         .ai-tools-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 90%; margin: 0 auto; }
         #ai-input { width: 100%; height: 110px; padding: 15px; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white; font-size: 16px; resize: none; }
         .ai-tool-btn { background-color: #d4af37; color: #0f172a; padding: 12px 20px; font-size: 14px; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .ai-tool-btn:hover:not(:disabled) { background-color: #f8fafc; transform: translateY(-2px); }
-        #ai-response { width: 100%; background-color: #f8fafc; padding: 20px; border-left: 6px solid #d4af37; border-radius: 4px; font-size: 16px; display: none; max-height: 250px; overflow-y: auto; color: #334155; text-align: left; margin-top: 15px; }
+        .ai-tool-btn:hover:not(:disabled) { background-color: #eab308; transform: translateY(-2px); }
+        
+        #ai-response { 
+            width: 100%; 
+            background-color: #f8fafc !important; 
+            padding: 20px; 
+            border-left: 6px solid #d4af37; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            display: none; 
+            max-height: 250px; 
+            overflow-y: auto; 
+            text-align: left; 
+            margin-top: 15px; 
+            color: #0f172a !important; /* FORZAR TEXTO OSCURO */
+        }
         #ai-response.active-response { display: block; }
         
-        /* Colores legibles para la IA */
-        #ai-response h1, #ai-response h2, #ai-response h3, #ai-response h4, #ai-response strong { color: #0f172a !important; margin-top: 10px; margin-bottom: 5px; }
+        /* FIX NUCLEAR: Colores 100% legibles para TODO lo que genere la IA */
+        #ai-response * {
+            color: #0f172a !important; 
+        }
+        #ai-response h1, #ai-response h2, #ai-response h3, #ai-response h4 { 
+            margin-top: 10px; margin-bottom: 5px; font-weight: 700;
+        }
         #ai-response ul { margin-left: 20px; margin-top: 10px; }
-        #ai-response li { color: #334155 !important; margin-bottom: 5px; }
+        #ai-response li { margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -168,7 +187,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V21.0 - RUTA V1 ESTABLE
+                    SISTEMA ACTUALIZADO V24.0 - VISIBILIDAD CORREGIDA
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -331,7 +350,7 @@
             </div>
         </div>
 
-        <!-- Slide 9: Herramientas IA -->
+        <!-- Slide 9: Herramientas IA (CÓDIGO GITHUB DEFINITIVO Y VISIBLE) -->
         <div class="slide-container bg-dark">
             <h2 class="slide-title">✨ Centro de Herramientas IA ✨</h2>
             <hr class="gold-line">
@@ -391,48 +410,29 @@
     </div>
 
     <script>
-        // Lógica de Navegación de la Presentación
+        // --- Lógica de Navegación ---
         let currentSlideIndex = 0;
         const slides = document.querySelectorAll('.slide-container');
-        const totalSlidesElement = document.getElementById('total-slides');
-        
-        if (totalSlidesElement) {
-            totalSlidesElement.textContent = slides.length;
-        }
+        document.getElementById('total-slides').textContent = slides.length;
 
         function showSlide(index) {
             slides.forEach(slide => slide.classList.remove('active'));
-
-            if (index >= slides.length) {
-                currentSlideIndex = 0;
-            } else if (index < 0) {
-                currentSlideIndex = slides.length - 1;
-            } else {
-                currentSlideIndex = index;
-            }
-
+            if (index >= slides.length) currentSlideIndex = 0;
+            else if (index < 0) currentSlideIndex = slides.length - 1;
+            else currentSlideIndex = index;
             slides[currentSlideIndex].classList.add('active');
-            const currentSlideElement = document.getElementById('current-slide');
-            if (currentSlideElement) {
-                currentSlideElement.textContent = currentSlideIndex + 1;
-            }
+            document.getElementById('current-slide').textContent = currentSlideIndex + 1;
         }
 
-        function changeSlide(direction) {
-            showSlide(currentSlideIndex + direction);
-        }
+        function changeSlide(direction) { showSlide(currentSlideIndex + direction); }
 
         document.addEventListener('keydown', function(event) {
             if (document.activeElement.id === 'ai-input') return;
-
-            if (event.key === 'ArrowRight' || event.key === ' ') {
-                changeSlide(1);
-            } else if (event.key === 'ArrowLeft') {
-                changeSlide(-1);
-            }
+            if (event.key === 'ArrowRight' || event.key === ' ') changeSlide(1);
+            else if (event.key === 'ArrowLeft') changeSlide(-1);
         });
 
-        // --- LÓGICA DE LA IA - CONEXIÓN ROBUSTA A LA API V1 ESTABLE ---
+        // --- LÓGICA DE LA IA CORREGIDA ---
         async function analyzeScenario(actionType) {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
@@ -444,100 +444,63 @@
                 return;
             }
 
-            // Deshabilitar botones durante la carga
             btns.forEach(btn => btn.disabled = true);
-            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando con Gemini Flash...';
+            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando el caso...';
             responseDiv.classList.add('active-response');
 
-            // Determinar instrucción
             let objective = "";
-            if (actionType === 'evaluar') {
-                objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica basándote en las reglas.";
-            } else if (actionType === 'mensaje') {
-                objective = "Redacta un mensaje persuasivo y amistoso de WhatsApp dirigido a un agente de bienes raíces o cliente, sobre cómo el programa de Carlos Ayllon puede resolver este escenario específico.";
-            } else if (actionType === 'checklist') {
-                objective = "Genera una lista de viñetas (checklist) paso a paso de todos los documentos y requisitos exactos que se le deben solicitar a este cliente para iniciar el proceso de inmediato.";
-            }
+            if (actionType === 'evaluar') objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica basándote en las reglas.";
+            else if (actionType === 'mensaje') objective = "Redacta un mensaje persuasivo y amistoso de WhatsApp dirigido a un agente de bienes raíces o cliente sobre este escenario.";
+            else if (actionType === 'checklist') objective = "Genera una lista (checklist) de todos los documentos exactos que se le deben solicitar a este cliente.";
 
             const fullPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
             
-            REGLAS ESTRICTAS DEL PORTAFOLIO:
-            1. SOLO se aceptan Ciudadanos Americanos y Residentes Permanentes. (ITIN, DACA, Permiso de Trabajo, TPS = RECHAZADOS).
-            2. PROGRAMA P&L (3.5% down): FICO mínimo 640 (3 scores), 2 años LLC/S-Corp. NO SE ADMITEN DBAs. NO se requieren taxes.
-            3. PROGRAMA VOE (3.5% down): FICO mínimo 580. Para empleados W2.
+            REGLAS:
+            1. SOLO Ciudadanos y Residentes (NO ITIN, DACA, Permiso de Trabajo, TPS).
+            2. P&L (3.5% down): FICO 640+, 2 años LLC/S-Corp. NO DBAs. NO taxes.
+            3. VOE (3.5% down): FICO 580+. Para empleados W2.
             
-            INSTRUCCIÓN ACTUAL: ${objective}
+            INSTRUCCIÓN: ${objective}
+            ESCENARIO: ${input}
+            FORMATO: Responde en español usando HTML simple (<strong>, <br>, <ul>, <li>). Termina invitando a contactar a Carlos al 281-536-9001.`;
+
+            const payload = { contents: [{ parts: [{ text: fullPrompt }] }] };
+
+            // --- TU CLAVE TIER 1 EXACTA ---
+            const p1 = "AIzaSyChDKc"; 
+            const p2 = "ZkHeb-VLVHw9wA";
+            const p3 = "b10GqhhP5AbCqk";
+            const apiKey = (p1 + p2 + p3).trim(); 
             
-            ESCENARIO DEL CLIENTE: ${input}
-            
-            FORMATO: Responde en español usando HTML simple (<strong>, <br>, <ul>, <li>). NO uses markdown. Termina invitando a contactar a Carlos al 281-536-9001.`;
+            // --- RUTA V1 DIRECTA ---
+            const fetchUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-            const payload = {
-                contents: [{ parts: [{ text: fullPrompt }] }]
-            };
-
-            const isLocalPreview = window.location.hostname.includes("goog") || window.location.hostname === "";
-            let endpointsToTry = [];
-
-            if (isLocalPreview) {
-                // Modo Previsualización (Canvas de IA)
-                endpointsToTry = [
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`
-                ];
-            } else {
-                // Modo Producción (GitHub Pages) - CLAVE FRAGMENTADA
-                const p1 = "AIzaSyChDKc"; 
-                const p2 = "ZkHeb-VLVHw9wA";
-                const p3 = "b10GqhhP5AbCqk";
-                const apiKey = (p1 + p2 + p3).trim(); 
+            try {
+                const res = await fetch(fetchUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
                 
-                // IMPORTANTE: Ahora la primera ruta usa /v1/ en lugar de /v1beta/ 
-                // Esto soluciona el error "not found for API version v1beta"
-                endpointsToTry = [
-                    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`
-                ];
-            }
-
-            let success = false;
-            let errorMsg = "";
-
-            for (const fetchUrl of endpointsToTry) {
-                try {
-                    const res = await fetch(fetchUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                const data = await res.json();
+                
+                if (res.ok && data.candidates && data.candidates.length > 0) {
+                    let text = data.candidates[0].content.parts[0].text;
+                    // Limpieza de formato markdown indeseado a HTML
+                    text = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    text = text.replace(/```html/g, '').replace(/```/g, '');
                     
-                    const data = await res.json();
-                    
-                    if (res.ok && data.candidates && data.candidates.length > 0) {
-                        const text = data.candidates[0].content.parts[0].text;
-                        responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/```html/g, '').replace(/```/g, '');
-                        success = true;
-                        break; // Salimos del bucle si fue exitoso
-                    } else {
-                        errorMsg = data.error?.message || `Error del servidor HTTP ${res.status}`;
-                        // Si nos dice "Quota exceeded", ninguna otra ruta servirá, cortamos el bucle.
-                        if (errorMsg.includes("quota") || errorMsg.includes("Quota")) {
-                            errorMsg = "CUOTA DE GOOGLE AGOTADA: El código conectó con éxito a Google, pero tu clave API no tiene saldo o cuota gratuita disponible (Límite: 0). Revisa tu cuenta en Google AI Studio.";
-                            break;
-                        }
-                    }
-                } catch (err) {
-                    errorMsg = err.message;
+                    responseDiv.innerHTML = text;
+                } else {
+                    responseDiv.innerHTML = `<strong>Error en la respuesta:</strong> ${data.error?.message || 'Google no generó contenido.'}`;
                 }
+            } catch (err) {
+                responseDiv.innerHTML = `<strong>Error de API:</strong> Falló la conexión con la URL. Detalle: ${err.message}`;
             }
 
-            if (!success) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de Google:</strong> ${errorMsg}</span>`;
-            }
-
-            // Reactivar botones
             btns.forEach(btn => btn.disabled = false);
         }
     </script>
 </body>
 </html>
+```
