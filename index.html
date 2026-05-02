@@ -150,6 +150,16 @@
         .ai-tool-btn:hover:not(:disabled) { background-color: #f8fafc; transform: translateY(-2px); }
         #ai-response { width: 100%; background-color: #f8fafc; padding: 20px; border-left: 6px solid #d4af37; border-radius: 4px; font-size: 16px; display: none; max-height: 250px; overflow-y: auto; color: #334155; text-align: left; margin-top: 15px; }
         #ai-response.active-response { display: block; }
+        
+        /* FIX: Asegurar que los títulos dentro del cuadro de IA sean oscuros */
+        #ai-response h1, #ai-response h2, #ai-response h3, #ai-response h4, #ai-response strong {
+            color: #0f172a !important;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        #ai-response ul, #ai-response li {
+            color: #334155 !important;
+        }
     </style>
 </head>
 <body>
@@ -163,7 +173,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V13.0 - ERRORES CORREGIDOS
+                    SISTEMA ACTUALIZADO V15.0 - TEXTO IA CORREGIDO
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -332,12 +342,16 @@
             <hr class="gold-line">
             <div class="ai-tools-grid">
                 <p style="text-align: center; color: #cbd5e1; font-size: 15px; margin-bottom: 10px;">
-                    Describe el caso de tu cliente y usa las herramientas para avanzar rápido:
+                    Describe el caso de tu cliente y usa las herramientas potenciadas por Gemini 2.5 para avanzar rápido:
                 </p>
                 <textarea id="ai-input" placeholder="Ej: Cliente con FICO 660, Residente Permanente, tiene una LLC por 3 años. Busca casa de $400k."></textarea>
-                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
-                    <button class="ai-tool-btn" id="ai-btn" onclick="analyzeScenario()"><i class="fa-solid fa-wand-magic-sparkles"></i> Evaluar Escenario</button>
+                
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
+                    <button class="ai-tool-btn" onclick="analyzeScenario('evaluar')"><i class="fa-solid fa-magnifying-glass"></i> ✨ Evaluar Escenario</button>
+                    <button class="ai-tool-btn" onclick="analyzeScenario('mensaje')"><i class="fa-brands fa-whatsapp"></i> ✨ Redactar Mensaje</button>
+                    <button class="ai-tool-btn" onclick="analyzeScenario('checklist')"><i class="fa-solid fa-list-check"></i> ✨ Generar Checklist</button>
                 </div>
+
                 <div id="ai-response"></div>
             </div>
             <div class="footer">IA POWERED BY GOOGLE GEMINI</div>
@@ -382,6 +396,7 @@
     </div>
 
     <script>
+        // Limpiamos completamente el script para evitar errores de sintaxis y conflictos globales.
         let currentSlideIndex = 0;
         const slides = document.querySelectorAll('.slide-container');
         const totalSlidesElement = document.getElementById('total-slides');
@@ -425,11 +440,11 @@
             }
         });
 
-        // --- GEMINI AI - SOLUCIÓN PARA ENTORNO DE PREVISUALIZACIÓN ---
-        async function analyzeScenario() {
+        // --- FUNCIONES MULTIPLES CON LLM GEMINI ---
+        async function analyzeScenario(actionType) {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
-            const btn = document.getElementById('ai-btn');
+            const btns = document.querySelectorAll('.ai-tool-btn');
 
             if (!input.trim()) {
                 responseDiv.innerHTML = "<strong>⚠️ Por favor, escribe un escenario en el cuadro de texto.</strong>";
@@ -437,32 +452,47 @@
                 return;
             }
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando...';
-            responseDiv.innerHTML = '';
-            responseDiv.classList.remove('active-response');
+            // Deshabilitar botones durante la carga
+            btns.forEach(btn => btn.disabled = true);
+            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando respuesta con Gemini...';
+            responseDiv.classList.add('active-response');
+            responseDiv.classList.remove('error-msg');
 
-            // En este entorno específico (Canvas), la llave API es inyectada automáticamente. 
-            // Debe estar vacía para no chocar con el sistema.
+            // En el entorno de Canvas, la clave se auto-inyecta de forma segura cuando es ""
             const apiKey = ""; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
+            // Determinar la instrucción del sistema según el botón presionado
+            let objective = "";
+            if (actionType === 'evaluar') {
+                objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica basándote en las reglas.";
+            } else if (actionType === 'mensaje') {
+                objective = "Redacta un mensaje persuasivo y amistoso de WhatsApp dirigido a un agente de bienes raíces o cliente, sobre cómo el programa de Carlos Ayllon puede resolver este escenario específico.";
+            } else if (actionType === 'checklist') {
+                objective = "Genera una lista de viñetas (checklist) paso a paso de todos los documentos y requisitos exactos que se le deben solicitar a este cliente para iniciar el proceso de inmediato.";
+            }
+
             const systemPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
-            Tu trabajo es ayudar a los agentes de bienes raíces evaluando rápidamente los escenarios de sus clientes.
+            Tu trabajo es ayudar a los agentes de bienes raíces gestionando los escenarios de sus clientes.
             
-            REGLAS ESTRICTAS:
-            1. SOLO se aceptan Ciudadanos Americanos y Residentes Permanentes. Si tienen ITIN, DACA o Permiso de Trabajo, NO CALIFICAN.
+            REGLAS ESTRICTAS DEL PORTAFOLIO:
+            1. SOLO se aceptan Ciudadanos Americanos y Residentes Permanentes. (ITIN, DACA, Permiso de Trabajo, TPS = RECHAZADOS).
             2. PROGRAMA P&L (3.5% down): FICO mínimo 640 (3 scores), 2 años LLC/S-Corp. NO SE ADMITEN DBAs. NO se requieren taxes.
             3. PROGRAMA VOE (3.5% down): FICO mínimo 580. Para empleados W2.
-            4. Responde en español, sé profesional y usa formato HTML simple (<strong>, <br>, <ul>). No uses markdown de asteriscos.
-            5. Termina invitando al agente a contactar a Carlos Ayllon al 281-536-9001.`;
+            
+            REGLAS DE FORMATO:
+            - Responde siempre en español.
+            - Usa un tono altamente profesional pero accesible.
+            - Devuelve el texto renderizado en HTML válido para integrarlo directamente en una página web (usa etiquetas como <strong>, <br>, <ul>, <li>, <h3>). 
+            - NO uses formato Markdown (como asteriscos dobles).
+            - En caso de generar un mensaje, asegúrate de mencionar a Carlos Ayllon (281-536-9001).`;
 
             const payload = {
-                contents: [{ parts: [{ text: "ESCENARIO DEL CLIENTE A EVALUAR:\n" + input }] }],
+                contents: [{ parts: [{ text: `INSTRUCCIÓN ACTUAL: ${objective}\n\nESCENARIO DEL CLIENTE:\n${input}` }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] }
             };
 
-            // Sistema de reintentos exigido por la configuración
+            // Ejecución con backoff por requerimiento de la API
             const fetchWithBackoff = async () => {
                 const delays = [1000, 2000, 4000, 8000, 16000];
                 for (let i = 0; i < delays.length; i++) {
@@ -473,7 +503,7 @@
                             body: JSON.stringify(payload)
                         });
                         if (res.ok) return await res.json();
-                        throw new Error(`Error de servidor (${res.status})`);
+                        throw new Error(`Error HTTP: ${res.status}`);
                     } catch (error) {
                         if (i === delays.length - 1) throw error;
                         await new Promise(resolve => setTimeout(resolve, delays[i]));
@@ -486,18 +516,17 @@
                 
                 if (data.candidates && data.candidates.length > 0) {
                     const text = data.candidates[0].content.parts[0].text;
+                    // Limpieza básica por si el modelo devuelve markdown accidental
                     responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    responseDiv.classList.add('active-response');
                 } else {
                     throw new Error("El modelo no devolvió una respuesta válida.");
                 }
             } catch (err) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de conexión:</strong> ${err.message}</span><br><br><small>Es posible que el entorno local esté bloqueando el acceso. Intenta probarlo desde el servidor de GitHub.</small>`;
-                responseDiv.classList.add('active-response');
+                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de sistema:</strong> Hubo un problema al procesar la solicitud (${err.message}). Por favor, intenta de nuevo.</span>`;
+            } finally {
+                // Reactivamos botones
+                btns.forEach(btn => btn.disabled = false);
             }
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Evaluar Escenario';
         }
     </script>
 </body>
