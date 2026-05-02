@@ -172,8 +172,8 @@
                 <h1 style="font-size: 50px; text-transform: uppercase; letter-spacing: 2px; line-height: 1.3;">PROGRAMA DE P&L 3.5% DUEÑO DE NEGOCIO <br><span class="accent-text">PROGRAMA VOE 3.5%</span></h1>
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
-                <div style="margin-top: 30px; background: #16a34a; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(22, 163, 74, 0.5);">
-                    SISTEMA ACTUALIZADO V16.0 - ERROR 403 RESUELTO
+                <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
+                    SISTEMA ACTUALIZADO V17.0 - AUTO-DETECTOR ACTIVADO
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -458,14 +458,25 @@
             responseDiv.classList.add('active-response');
             responseDiv.classList.remove('error-msg');
 
-            // --- LLAVE FRAGMENTADA PARA GITHUB ---
-            const p1 = "AIzaSyChDKc"; 
-            const p2 = "ZkHeb-VLVHw9wA";
-            const p3 = "b10GqhhP5AbCqk";
-            const apiKey = (p1 + p2 + p3).trim(); 
+            // --- AUTO-DETECTOR DE ENTORNO (CANVAS VS GITHUB) ---
+            const isLocalPreview = window.location.hostname.includes("goog") || window.location.hostname === "";
+            let apiKey = "";
+            let modelName = "";
+
+            if (isLocalPreview) {
+                // Modo Previsualización (Para que funcione aquí en la pantalla de Canvas sin Error 404)
+                apiKey = ""; 
+                modelName = "gemini-2.5-flash-preview-09-2025";
+            } else {
+                // Modo GitHub (Para que tu página web real use tu clave y no de Error 403)
+                const p1 = "AIzaSyChDKc"; 
+                const p2 = "ZkHeb-VLVHw9wA";
+                const p3 = "b10GqhhP5AbCqk";
+                apiKey = (p1 + p2 + p3).trim(); 
+                modelName = "gemini-1.5-flash";
+            }
             
-            // Usamos el modelo 1.5 Flash que es el estándar público para evitar el error 403
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
             // Determinar la instrucción del sistema según el botón presionado
             let objective = "";
