@@ -168,7 +168,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V20.0 - MODELO FLASH FORZADO
+                    SISTEMA ACTUALIZADO V21.0 - RUTA V1 ESTABLE
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -331,7 +331,7 @@
             </div>
         </div>
 
-        <!-- Slide 9: Herramientas IA (CÓDIGO CON AUTODESCUBRIMIENTO DE MODELO) -->
+        <!-- Slide 9: Herramientas IA -->
         <div class="slide-container bg-dark">
             <h2 class="slide-title">✨ Centro de Herramientas IA ✨</h2>
             <hr class="gold-line">
@@ -432,7 +432,7 @@
             }
         });
 
-        // --- LÓGICA DE LA IA - CONEXIÓN ESTRICTA AL MODELO FLASH (GRATUITO) ---
+        // --- LÓGICA DE LA IA - CONEXIÓN ROBUSTA A LA API V1 ESTABLE ---
         async function analyzeScenario(actionType) {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
@@ -477,11 +477,13 @@
             };
 
             const isLocalPreview = window.location.hostname.includes("goog") || window.location.hostname === "";
-            let fetchUrl = "";
+            let endpointsToTry = [];
 
             if (isLocalPreview) {
                 // Modo Previsualización (Canvas de IA)
-                fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`;
+                endpointsToTry = [
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`
+                ];
             } else {
                 // Modo Producción (GitHub Pages) - CLAVE FRAGMENTADA
                 const p1 = "AIzaSyChDKc"; 
@@ -489,33 +491,48 @@
                 const p3 = "b10GqhhP5AbCqk";
                 const apiKey = (p1 + p2 + p3).trim(); 
                 
-                // FORZAMOS LA CONEXIÓN DIRECTA AL MODELO 1.5-FLASH (Mayor cuota gratuita)
-                fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                // IMPORTANTE: Ahora la primera ruta usa /v1/ en lugar de /v1beta/ 
+                // Esto soluciona el error "not found for API version v1beta"
+                endpointsToTry = [
+                    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`
+                ];
             }
 
-            try {
-                const res = await fetch(fetchUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await res.json();
-                
-                if (res.ok && data.candidates && data.candidates.length > 0) {
-                    const text = data.candidates[0].content.parts[0].text;
-                    responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/```html/g, '').replace(/```/g, '');
-                } else {
-                    const errorMsg = data.error?.message || `Error del servidor HTTP ${res.status}`;
-                    // Lógica para detectar si sigue siendo problema de cuota de Google
-                    if (errorMsg.includes("quota") || errorMsg.includes("Quota")) {
-                        responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>⚠️ CUOTA DE GOOGLE AGOTADA:</strong> El código conectó con éxito, pero Google indica que tu clave API no tiene saldo o cuota gratuita disponible (Límite: 0). Debes ir a Google AI Studio y verificar tu facturación (Billing) para este proyecto.</span>`;
+            let success = false;
+            let errorMsg = "";
+
+            for (const fetchUrl of endpointsToTry) {
+                try {
+                    const res = await fetch(fetchUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (res.ok && data.candidates && data.candidates.length > 0) {
+                        const text = data.candidates[0].content.parts[0].text;
+                        responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/```html/g, '').replace(/```/g, '');
+                        success = true;
+                        break; // Salimos del bucle si fue exitoso
                     } else {
-                        responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de Google:</strong> ${errorMsg}</span>`;
+                        errorMsg = data.error?.message || `Error del servidor HTTP ${res.status}`;
+                        // Si nos dice "Quota exceeded", ninguna otra ruta servirá, cortamos el bucle.
+                        if (errorMsg.includes("quota") || errorMsg.includes("Quota")) {
+                            errorMsg = "CUOTA DE GOOGLE AGOTADA: El código conectó con éxito a Google, pero tu clave API no tiene saldo o cuota gratuita disponible (Límite: 0). Revisa tu cuenta en Google AI Studio.";
+                            break;
+                        }
                     }
+                } catch (err) {
+                    errorMsg = err.message;
                 }
-            } catch (err) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Falla de Conexión:</strong> ${err.message}</span>`;
+            }
+
+            if (!success) {
+                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de Google:</strong> ${errorMsg}</span>`;
             }
 
             // Reactivar botones
