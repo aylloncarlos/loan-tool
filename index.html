@@ -173,7 +173,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V17.0 - AUTO-DETECTOR ACTIVADO
+                    SISTEMA ACTUALIZADO V18.0 - RUTAS UNIVERSALES
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -454,31 +454,11 @@
 
             // Deshabilitar botones durante la carga
             btns.forEach(btn => btn.disabled = true);
-            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando respuesta con Gemini...';
+            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Evaluando opciones...';
             responseDiv.classList.add('active-response');
             responseDiv.classList.remove('error-msg');
 
-            // --- AUTO-DETECTOR DE ENTORNO (CANVAS VS GITHUB) ---
-            const isLocalPreview = window.location.hostname.includes("goog") || window.location.hostname === "";
-            let apiKey = "";
-            let modelName = "";
-
-            if (isLocalPreview) {
-                // Modo Previsualización (Para que funcione aquí en la pantalla de Canvas sin Error 404)
-                apiKey = ""; 
-                modelName = "gemini-2.5-flash-preview-09-2025";
-            } else {
-                // Modo GitHub (Para que tu página web real use tu clave y no de Error 403)
-                const p1 = "AIzaSyChDKc"; 
-                const p2 = "ZkHeb-VLVHw9wA";
-                const p3 = "b10GqhhP5AbCqk";
-                apiKey = (p1 + p2 + p3).trim(); 
-                modelName = "gemini-1.5-flash";
-            }
-            
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-
-            // Determinar la instrucción del sistema según el botón presionado
+            // --- REGLAS DEL SISTEMA ---
             let objective = "";
             if (actionType === 'evaluar') {
                 objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica basándote en las reglas.";
@@ -488,7 +468,7 @@
                 objective = "Genera una lista de viñetas (checklist) paso a paso de todos los documentos y requisitos exactos que se le deben solicitar a este cliente para iniciar el proceso de inmediato.";
             }
 
-            const systemPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
+            const fullPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
             Tu trabajo es ayudar a los agentes de bienes raíces gestionando los escenarios de sus clientes.
             
             REGLAS ESTRICTAS DEL PORTAFOLIO:
@@ -499,50 +479,75 @@
             REGLAS DE FORMATO:
             - Responde siempre en español.
             - Usa un tono altamente profesional pero accesible.
-            - Devuelve el texto renderizado en HTML válido para integrarlo directamente en una página web (usa etiquetas como <strong>, <br>, <ul>, <li>, <h3>). 
+            - Usa formato HTML simple (<strong>, <br>, <ul>, <li>, <h3>). 
             - NO uses formato Markdown (como asteriscos dobles).
-            - En caso de generar un mensaje, asegúrate de mencionar a Carlos Ayllon (281-536-9001).`;
+            - En caso de generar un mensaje, asegúrate de mencionar a Carlos Ayllon (281-536-9001).
+            
+            INSTRUCCIÓN ACTUAL: ${objective}
+            
+            ESCENARIO DEL CLIENTE:
+            ${input}`;
 
             const payload = {
-                contents: [{ parts: [{ text: `INSTRUCCIÓN ACTUAL: ${objective}\n\nESCENARIO DEL CLIENTE:\n${input}` }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
+                contents: [{ parts: [{ text: fullPrompt }] }]
             };
 
-            // Ejecución con backoff por requerimiento de la API
-            const fetchWithBackoff = async () => {
-                const delays = [1000, 2000, 4000, 8000, 16000];
-                for (let i = 0; i < delays.length; i++) {
-                    try {
-                        const res = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (res.ok) return await res.json();
-                        throw new Error(`Error HTTP: ${res.status}`);
-                    } catch (error) {
-                        if (i === delays.length - 1) throw error;
-                        await new Promise(resolve => setTimeout(resolve, delays[i]));
-                    }
-                }
-            };
+            // --- AUTO-DETECTOR DE ENTORNO (CANVAS VS GITHUB) ---
+            const isLocalPreview = window.location.hostname.includes("goog") || window.location.hostname === "";
+            let endpoints = [];
 
-            try {
-                const data = await fetchWithBackoff();
+            if (isLocalPreview) {
+                // Modo Previsualización (Canvas)
+                endpoints = [
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`
+                ];
+            } else {
+                // Modo GitHub (Tu clave fragmentada)
+                const p1 = "AIzaSyChDKc"; 
+                const p2 = "ZkHeb-VLVHw9wA";
+                const p3 = "b10GqhhP5AbCqk";
+                const apiKey = (p1 + p2 + p3).trim(); 
                 
-                if (data.candidates && data.candidates.length > 0) {
-                    const text = data.candidates[0].content.parts[0].text;
-                    // Limpieza básica por si el modelo devuelve markdown accidental
-                    responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                } else {
-                    throw new Error("El modelo no devolvió una respuesta válida.");
-                }
-            } catch (err) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de sistema:</strong> Hubo un problema al procesar la solicitud (${err.message}). Por favor, intenta de nuevo.</span>`;
-            } finally {
-                // Reactivamos botones
-                btns.forEach(btn => btn.disabled = false);
+                endpoints = [
+                    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
+                ];
             }
+
+            let success = false;
+            let lastError = "";
+
+            // Probamos cada endpoint hasta que uno funcione
+            for (const url of endpoints) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (res.ok && data.candidates && data.candidates.length > 0) {
+                        const text = data.candidates[0].content.parts[0].text;
+                        responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        success = true;
+                        break;
+                    } else {
+                        lastError = data.error?.message || `Error HTTP ${res.status}`;
+                    }
+                } catch (err) {
+                    lastError = err.message;
+                }
+            }
+
+            if (!success) {
+                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de sistema:</strong> Hubo un problema de conexión (${lastError}). Por favor, intenta de nuevo.</span>`;
+            }
+
+            // Reactivamos botones
+            btns.forEach(btn => btn.disabled = false);
         }
     </script>
 </body>
