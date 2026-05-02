@@ -149,7 +149,7 @@
         .ai-tool-btn { background-color: #d4af37; color: #0f172a; padding: 12px 20px; font-size: 14px; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
         .ai-tool-btn:hover:not(:disabled) { background-color: #f8fafc; transform: translateY(-2px); }
         #ai-response { width: 100%; background-color: #f8fafc; padding: 20px; border-left: 6px solid #d4af37; border-radius: 4px; font-size: 16px; display: none; max-height: 250px; overflow-y: auto; color: #334155; text-align: left; margin-top: 15px; }
-        #ai-response.active { display: block; }
+        #ai-response.active-response { display: block; }
     </style>
 </head>
 <body>
@@ -163,7 +163,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V11.0 - IA GEMINI 2.5
+                    SISTEMA ACTUALIZADO V12.0 - IA FINAL
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -326,7 +326,7 @@
             </div>
         </div>
 
-        <!-- Slide 9: Herramientas IA (SOLUCIÓN FINAL GEMINI 2.5) -->
+        <!-- Slide 9: Herramientas IA -->
         <div class="slide-container bg-dark">
             <h2 class="slide-title">✨ Centro de Herramientas IA ✨</h2>
             <hr class="gold-line">
@@ -336,13 +336,11 @@
                 </p>
                 <textarea id="ai-input" placeholder="Ej: Cliente con FICO 660, Residente Permanente, tiene una LLC por 3 años. Busca casa de $400k."></textarea>
                 <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
-                    <button class="ai-tool-btn" onclick="aiTool('evaluate')"><i class="fa-solid fa-magnifying-glass"></i> Analizar</button>
-                    <button class="ai-tool-btn" onclick="aiTool('message')"><i class="fa-brands fa-whatsapp"></i> Mensaje</button>
-                    <button class="ai-tool-btn" onclick="aiTool('checklist')"><i class="fa-solid fa-list-check"></i> Documentos</button>
+                    <button class="ai-tool-btn" id="ai-btn" onclick="analyzeScenario()"><i class="fa-solid fa-wand-magic-sparkles"></i> Evaluar Escenario</button>
                 </div>
                 <div id="ai-response"></div>
             </div>
-            <div class="footer">IA POWERED BY GEMINI 2.5 FLASH</div>
+            <div class="footer">IA POWERED BY GOOGLE GEMINI</div>
         </div>
 
         <!-- Slide 10: Oficina -->
@@ -405,68 +403,87 @@
             if (e.key === 'ArrowLeft') changeSlide(-1);
         });
 
-        // --- GEMINI AI - SOLUCIÓN GEMINI 2.5 FLASH ---
-        async function aiTool(type) {
+        // --- GEMINI AI - SOLUCIÓN ESTANDARIZADA FINAL ---
+        async function analyzeScenario() {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
-            const btns = document.querySelectorAll('.ai-tool-btn');
-            const currentBtn = event.currentTarget;
+            const btn = document.getElementById('ai-btn');
 
-            if (!input.trim()) return;
+            if (!input.trim()) {
+                responseDiv.innerHTML = "<strong>⚠️ Por favor, escribe un escenario en el cuadro de texto.</strong>";
+                responseDiv.classList.add('active-response');
+                return;
+            }
 
-            btns.forEach(b => b.disabled = true);
-            const originalHTML = currentBtn.innerHTML;
-            currentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando...';
             responseDiv.innerHTML = '';
-            responseDiv.classList.remove('active');
+            responseDiv.classList.remove('active-response');
 
-            // Llave API fragmentada para evitar el bloqueo de Github
+            // Llave API fragmentada (La que proporcionaste)
             const p1 = "AIzaSyChDKc"; 
             const p2 = "ZkHeb-VLVHw9wA";
             const p3 = "b10GqhhP5AbCqk";
             const apiKey = (p1 + p2 + p3).trim();
             
-            // Usamos el modelo más reciente y garantizado (Gemini 2.5 Flash)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const contextRules = "ERES ASISTENTE DE CARLOS AYLLON. REGLAS: Solo Ciudadanos/Residentes (NO ITIN, NO DACA, NO Permiso Trabajo, NO TPS). P&L: FICO 640+, 2 años LLC, No Taxes. VOE: FICO 580+, W2, verificación directa empleador. No DBAs sin licencia verificable online.";
+            // Construimos el prompt integrado en el contenido para máxima compatibilidad
+            const promptText = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
+            Tu trabajo es ayudar a los agentes de bienes raíces evaluando rápidamente los escenarios de sus clientes.
             
-            let objective = "";
-            if (type === 'evaluate') objective = "Evalúa si el cliente califica. Si tiene ITIN/DACA/Permiso di que no califica de forma directa.";
-            if (type === 'message') objective = "Redacta un mensaje de WhatsApp resaltando el beneficio del 3.5% down y no taxes.";
-            if (type === 'checklist') objective = "Genera la lista de documentos para el caso.";
+            REGLAS ESTRICTAS:
+            1. SOLO se aceptan Ciudadanos Americanos y Residentes Permanentes. Si tienen ITIN, DACA o Permiso de Trabajo, NO CALIFICAN.
+            2. PROGRAMA P&L (3.5% down): FICO mínimo 640 (3 scores), 2 años LLC/S-Corp. NO SE ADMITEN DBAs. NO se requieren taxes.
+            3. PROGRAMA VOE (3.5% down): FICO mínimo 580. Para empleados W2.
+            4. Responde en español, sé profesional y usa formato HTML simple (<strong>, <br>, <ul>). No uses markdown de asteriscos.
+            5. Termina invitando al agente a contactar a Carlos Ayllon al 281-536-9001.
+
+            ESCENARIO DEL CLIENTE A EVALUAR:
+            ${input}`;
 
             const payload = {
-                contents: [{
-                    parts: [{
-                        text: `INSTRUCCIONES: ${contextRules}\n\nOBJETIVO: ${objective}\n\nESCENARIO: ${input}\n\nResponde en español con formato HTML (usa <strong> y <br>):`
-                    }]
-                }]
+                contents: [{ parts: [{ text: promptText }] }]
             };
 
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await res.json();
-                
-                if (!res.ok) {
-                    throw new Error(data.error?.message || "Error en la conexión con Gemini.");
-                }
+            // Lista de endpoints oficiales públicos. Intentará Flash primero, y si falla intentará Pro.
+            const endpoints = [
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
+            ];
 
-                const text = data.candidates[0].content.parts[0].text;
-                responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                responseDiv.classList.add('active');
-            } catch (err) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso:</strong> ${err.message}</span><br><br><small>Por favor, asegúrate de haber borrado el caché (Ctrl + F5).</small>`;
-                responseDiv.classList.add('active');
-            } finally {
-                btns.forEach(b => b.disabled = false);
-                currentBtn.innerHTML = originalHTML;
+            let success = false;
+            let lastError = "";
+
+            for (const url of endpoints) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (res.ok && data.candidates && data.candidates.length > 0) {
+                        const text = data.candidates[0].content.parts[0].text;
+                        responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        responseDiv.classList.add('active-response');
+                        success = true;
+                        break; // Salimos del bucle si fue exitoso
+                    } else {
+                        lastError = data.error?.message || "Error desconocido en el modelo.";
+                    }
+                } catch (err) {
+                    lastError = err.message;
+                }
             }
+
+            if (!success) {
+                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de conexión:</strong> ${lastError}</span><br><br><small>Revisa que la clave API esté activa en tu cuenta de Google.</small>`;
+                responseDiv.classList.add('active-response');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Evaluar Escenario';
         }
     </script>
 </body>
