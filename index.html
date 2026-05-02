@@ -147,7 +147,7 @@
         .ai-tools-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 90%; margin: 0 auto; }
         #ai-input { width: 100%; height: 110px; padding: 15px; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white; font-size: 16px; resize: none; }
         .ai-tool-btn { background-color: #d4af37; color: #0f172a; padding: 12px 20px; font-size: 14px; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .ai-tool-btn:hover:not(:disabled) { background-color: #eab308; transform: translateY(-2px); }
+        .ai-tool-btn:hover:not(:disabled) { background-color: #f8fafc; transform: translateY(-2px); }
         
         #ai-response { 
             width: 100%; 
@@ -187,7 +187,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V24.0 - VISIBILIDAD CORREGIDA
+                    SISTEMA ACTUALIZADO V25.0 - PREVIEW Y GITHUB RESTAURADOS
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -350,7 +350,7 @@
             </div>
         </div>
 
-        <!-- Slide 9: Herramientas IA (CÓDIGO GITHUB DEFINITIVO Y VISIBLE) -->
+        <!-- Slide 9: Herramientas IA (CON AUTO-DETECCIÓN INTELIGENTE) -->
         <div class="slide-container bg-dark">
             <h2 class="slide-title">✨ Centro de Herramientas IA ✨</h2>
             <hr class="gold-line">
@@ -432,7 +432,7 @@
             else if (event.key === 'ArrowLeft') changeSlide(-1);
         });
 
-        // --- LÓGICA DE LA IA CORREGIDA ---
+        // --- LÓGICA DE LA IA COMPLETAMENTE RESTAURADA ---
         async function analyzeScenario(actionType) {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
@@ -445,57 +445,86 @@
             }
 
             btns.forEach(btn => btn.disabled = true);
-            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando el caso...';
+            responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando el caso con Gemini...';
             responseDiv.classList.add('active-response');
 
+            // 1. Determinar el objetivo según el botón
             let objective = "";
-            if (actionType === 'evaluar') objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica basándote en las reglas.";
-            else if (actionType === 'mensaje') objective = "Redacta un mensaje persuasivo y amistoso de WhatsApp dirigido a un agente de bienes raíces o cliente sobre este escenario.";
-            else if (actionType === 'checklist') objective = "Genera una lista (checklist) de todos los documentos exactos que se le deben solicitar a este cliente.";
+            if (actionType === 'evaluar') objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica.";
+            else if (actionType === 'mensaje') objective = "Redacta un mensaje persuasivo y amistoso de WhatsApp dirigido al agente de bienes raíces o cliente sobre este escenario.";
+            else if (actionType === 'checklist') objective = "Genera una lista (checklist) de todos los documentos exactos que se le deben solicitar a este cliente para empezar.";
 
-            const fullPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
+            const systemPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
             
-            REGLAS:
-            1. SOLO Ciudadanos y Residentes (NO ITIN, DACA, Permiso de Trabajo, TPS).
-            2. P&L (3.5% down): FICO 640+, 2 años LLC/S-Corp. NO DBAs. NO taxes.
-            3. VOE (3.5% down): FICO 580+. Para empleados W2.
+            REGLAS ESTRICTAS:
+            1. SOLO Ciudadanos y Residentes Permanentes (NO ITIN, NO DACA, NO Permiso de Trabajo, NO TPS).
+            2. Programa P&L (3.5% down): FICO 640+ (3 scores), 2 años LLC/S-Corp. NO DBAs. NO taxes.
+            3. Programa VOE (3.5% down): FICO 580+. Para empleados W2.
             
             INSTRUCCIÓN: ${objective}
-            ESCENARIO: ${input}
-            FORMATO: Responde en español usando HTML simple (<strong>, <br>, <ul>, <li>). Termina invitando a contactar a Carlos al 281-536-9001.`;
-
-            const payload = { contents: [{ parts: [{ text: fullPrompt }] }] };
-
-            // --- TU CLAVE TIER 1 EXACTA ---
-            const p1 = "AIzaSyChDKc"; 
-            const p2 = "ZkHeb-VLVHw9wA";
-            const p3 = "b10GqhhP5AbCqk";
-            const apiKey = (p1 + p2 + p3).trim(); 
             
-            // --- RUTA V1 DIRECTA ---
-            const fetchUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            FORMATO: Responde en español usando formato HTML limpio (usando etiquetas como <strong>, <br>, <ul>, <li>). NO uses asteriscos dobles de markdown. Termina siempre invitando a contactar a Carlos al 281-536-9001.`;
+
+            // Construir el cuerpo de la petición de forma segura
+            const payload = {
+                contents: [{ parts: [{ text: "ESCENARIO DEL CLIENTE: " + input }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            // 2. DETECTOR DE ENTORNO (CANVAS VS GITHUB)
+            const hostname = window.location.hostname;
+            const isLocalPreview = hostname.includes("goog") || hostname === "" || hostname === "localhost" || hostname === "127.0.0.1" || hostname.includes("webcontainer");
+            
+            let fetchUrl = "";
+
+            if (isLocalPreview) {
+                // Modo Canvas: Exige la llave vacía y el modelo preview específico
+                const apiKey = ""; 
+                fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            } else {
+                // Modo Producción en Github: Usa tu llave activa correcta y la ruta v1 oficial
+                const p1 = "AIzaSyChDKc"; 
+                const p2 = "ZkHeb-VLVHw9wA";
+                const p3 = "b10GqhhP5AbCqk";
+                const apiKey = (p1 + p2 + p3).trim(); 
+                fetchUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            }
+
+            // Función de reintento inteligente
+            const fetchWithRetry = async (url, options, retries = 5) => {
+                const delays = [1000, 2000, 4000, 8000, 16000];
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const res = await fetch(url, options);
+                        if (res.ok) return await res.json();
+                        
+                        const errorData = await res.json();
+                        throw new Error(errorData.error?.message || `HTTP ${res.status}`);
+                    } catch (e) {
+                        if (i === retries - 1) throw e;
+                        await new Promise(r => setTimeout(r, delays[i]));
+                    }
+                }
+            };
 
             try {
-                const res = await fetch(fetchUrl, {
+                const data = await fetchWithRetry(fetchUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                const data = await res.json();
-                
-                if (res.ok && data.candidates && data.candidates.length > 0) {
+                if (data.candidates && data.candidates.length > 0) {
                     let text = data.candidates[0].content.parts[0].text;
-                    // Limpieza de formato markdown indeseado a HTML
+                    // Limpieza final de formato para garantizar legibilidad
                     text = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                     text = text.replace(/```html/g, '').replace(/```/g, '');
-                    
                     responseDiv.innerHTML = text;
                 } else {
-                    responseDiv.innerHTML = `<strong>Error en la respuesta:</strong> ${data.error?.message || 'Google no generó contenido.'}`;
+                    responseDiv.innerHTML = `<strong>Error:</strong> Google procesó la solicitud pero devolvió una respuesta en blanco.`;
                 }
             } catch (err) {
-                responseDiv.innerHTML = `<strong>Error de API:</strong> Falló la conexión con la URL. Detalle: ${err.message}`;
+                responseDiv.innerHTML = `<strong>Falla de Conexión:</strong> ${err.message}`;
             }
 
             btns.forEach(btn => btn.disabled = false);
@@ -503,4 +532,3 @@
     </script>
 </body>
 </html>
-```
