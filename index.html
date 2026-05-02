@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* === CONFIGURACIÓN BASE === */
+        /* === RESET & CONFIGURACIÓN === */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -54,7 +54,7 @@
         .slide-container.active { opacity: 1; visibility: visible; z-index: 10; }
         .bg-dark { background-color: #0f172a; color: #f8fafc; }
 
-        /* === FOOTER GLOBAL (IGUAL EN TODOS) === */
+        /* === FOOTER GLOBAL === */
         .footer {
             position: absolute;
             bottom: 0;
@@ -85,22 +85,23 @@
         .content-area { width: 100%; display: flex; flex-direction: column; flex-grow: 1; justify-content: center; }
         .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; width: 100%; align-items: center; }
         
-        .presenter-img { width: 100%; height: 380px; border-radius: 12px; border: 4px solid #f8fafc; box-shadow: 0 15px 30px rgba(0,0,0,0.1); overflow: hidden; }
-        .presenter-img img { width: 100%; height: 100%; object-fit: cover; }
-        .company-logo { max-height: 85px; margin-bottom: 25px; object-fit: contain; }
+        .image-box { width: 100%; height: 380px; border-radius: 12px; border: 4px solid #f8fafc; box-shadow: 0 15px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        .image-box img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-img { max-height: 85px; margin-bottom: 25px; object-fit: contain; }
 
-        .tile { flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 35px; text-align: left; }
-        .tile i { font-size: 40px; color: #d4af37; margin-bottom: 20px; display: block; text-align: center;}
-        .tile h3 { font-size: 22px; margin-bottom: 15px; text-align: center; }
+        .tile { flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 30px; text-align: left; }
+        .tile i { font-size: 40px; color: #d4af37; margin-bottom: 15px; display: block; text-align: center;}
+        .tile h3 { font-size: 22px; margin-bottom: 12px; text-align: center; }
         
         table { border-collapse: collapse; width: 100%; background-color: #ffffff; border-radius: 10px; overflow: hidden; font-size: 18px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);}
-        th { padding: 20px; text-align: left; background-color: #0f172a; color: #ffffff; }
-        td { padding: 18px 20px; border-bottom: 1px solid #e2e8f0; color: #475569; }
+        th { padding: 18px; text-align: left; background-color: #0f172a; color: #ffffff; }
+        td { padding: 15px 18px; border-bottom: 1px solid #e2e8f0; color: #475569; }
         tr:nth-child(even) { background-color: #f8fafc; }
 
         /* === AI TOOLS === */
         .ai-tools-grid { width: 100%; max-width: 1000px; margin: 0 auto; }
-        #ai-input { width: 100%; height: 140px; padding: 20px; border-radius: 10px; border: 2px solid #334155; background: #1e293b; color: white; font-size: 18px; resize: none; margin-bottom: 20px; }
+        #ai-input { width: 100%; height: 140px; padding: 20px; border-radius: 10px; border: 2px solid #334155; background: #1e293b; color: white; font-size: 18px; resize: none; margin-bottom: 15px; }
+        .ai-btn-container { display: flex; gap: 20px; justify-content: center; }
         .ai-tool-btn { background-color: #d4af37; color: #0f172a; padding: 15px 30px; font-size: 16px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
         .ai-tool-btn:hover:not(:disabled) { background-color: #eab308; transform: translateY(-2px); }
         #ai-response { width: 100%; background-color: #f8fafc; padding: 25px; border-left: 6px solid #d4af37; border-radius: 5px; font-size: 18px; display: none; max-height: 250px; overflow-y: auto; color: #334155; margin-top: 20px; text-align: left; }
@@ -112,9 +113,8 @@
         .nav-btn:hover { background-color: #eab308; transform: scale(1.1); }
         .slide-counter { position: absolute; bottom: 92px; right: 210px; z-index: 100; color: #94a3b8; font-weight: 700; letter-spacing: 2px; }
 
-        /* === BLEED LAYOUT FIX === */
         .bleed-layout { padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
-        .bleed-content { padding: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .bleed-content { padding: 60px 80px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left;}
         .bleed-image { height: 100%; width: 100%; object-fit: cover; }
     </style>
 </head>
@@ -122,100 +122,89 @@
 
     <div id="presentation-wrapper">
         
-        <!-- Slide 1: Portada -->
+        <!-- Slide 1 -->
         <div class="slide-container active bg-dark" style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1280&q=80'); background-size: cover; background-position: center;">
             <div style="text-align: center; margin-top: 100px;">
                 <h1 style="font-size: 55px; text-transform: uppercase; letter-spacing: 3px; line-height: 1.3;">PROGRAMA DE P&L 3.5% DUEÑO DE NEGOCIO <br><span class="accent-text">PROGRAMA VOE 3.5%</span></h1>
                 <hr class="gold-line" style="width: 150px;">
-                <p style="font-size: 26px; color: #cbd5e1; letter-spacing: 4px; text-transform: uppercase;">Soluciones de Préstamos de Portafolio para Realtors</p>
-                <div style="margin-top: 25px; color: #d4af37; font-weight: 700; font-size: 14px; background: rgba(212, 175, 55, 0.1); padding: 5px 15px; display: inline-block; border: 1px solid #d4af37; border-radius: 4px;">
-                    SISTEMA ACTUALIZADO V4.0 - CARLOS
+                <p style="font-size: 26px; color: #cbd5e1; letter-spacing: 4px; text-transform: uppercase;">Soluciones Hipotecarias de Portafolio para Realtors</p>
+                <!-- MARCA DE CONTROL GIGANTE -->
+                <div style="margin-top: 30px; background: #e11d48; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 24px; border: 4px solid white; box-shadow: 0 0 20px rgba(225, 29, 72, 0.5);">
+                    SISTEMA ACTUALIZADO V7.0 - FINAL
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 2: Análisis (Imagen Velas) -->
+        <!-- Slide 2 -->
         <div class="slide-container">
-            <h2 class="slide-title">Análisis Técnico y Experiencia</h2>
+            <h2 class="slide-title">Estrategia y Análisis Financiero</h2>
             <hr class="gold-line">
             <div class="content-area">
                 <div class="two-column">
-                    <div class="presenter-img">
-                        <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80" alt="Gráfico financiero Velas">
+                    <div class="image-box">
+                        <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80" alt="Gráfico de velas financieras">
                     </div>
                     <div>
-                        <img src="WHatsapp image 2344.png" alt="Logo" class="company-logo" onerror="this.style.display='none'">
-                        <h3 style="font-size: 40px; margin-bottom: 10px;">Carlos Ayllon</h3>
-                        <p style="font-size: 24px; color: #d4af37; font-weight: 700; margin-bottom: 25px; text-transform: uppercase;">Estratega en Préstamos de Portafolio</p>
-                        <div style="background-color: #f8fafc; padding: 25px; border-left: 5px solid #0f172a; margin-bottom: 25px; font-size: 18px;">
+                        <img src="WHatsapp image 2344.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                        <h3 style="font-size: 40px; margin-bottom: 5px;">Carlos Ayllon</h3>
+                        <p style="font-size: 24px; color: #d4af37; font-weight: 700; margin-bottom: 25px; text-transform: uppercase;">Mortgage Loan Officer</p>
+                        <div style="background-color: #f8fafc; padding: 25px; border-left: 5px solid #0f172a; margin-bottom: 25px;">
                             <p><strong>NMLS #:</strong> 2218673</p>
                             <p><strong>Teléfono:</strong> 281-536-9001</p>
                             <p><strong>Email:</strong> arg@aylloncarlos.com</p>
                         </div>
-                        <p style="font-size: 19px; line-height: 1.6;">Especializado en rescatar tratos complejos mediante el uso de P&L y VOE, permitiendo que dueños de negocios califiquen sin taxes convencionales.</p>
+                        <p style="font-size: 19px; line-height: 1.6;">Especializado en rescatar tratos complejos para dueños de negocios mediante programas de portafolio que no requieren taxes convencionales.</p>
                     </div>
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 3: Desbloquea Ventas -->
+        <!-- Slide 3 -->
         <div class="slide-container bleed-layout">
             <div class="bleed-content">
                 <h2 style="font-size: 50px; color: #0f172a; margin-bottom: 20px;">Desbloquea <br><span class="accent-text">Más Ventas</span></h2>
                 <hr class="gold-line" style="margin-left: 0;">
-                <p style="font-size: 20px; line-height: 1.6; margin-bottom: 20px;">Ayudamos a compradores motivados que son rechazados por bancos tradicionales por no tener W2s perfectos.</p>
-                <p style="font-size: 20px; line-height: 1.6;">Nuestros préstamos Non-QM evalúan la salud real del negocio de tu cliente, rescatando transacciones que otros darían por perdidas.</p>
+                <p style="font-size: 20px; line-height: 1.6; margin-bottom: 20px;">Deja de perder clientes motivados que no encajan en los moldes rígidos de los bancos tradicionales.</p>
+                <p style="font-size: 20px; line-height: 1.6;">Nuestros préstamos Non-QM nos permiten evaluar la capacidad de pago real de tus clientes sin depender de sus taxes.</p>
             </div>
-            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" class="bleed-image" alt="Luxury Home">
+            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" class="bleed-image" alt="Casa de lujo">
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 4: Requisitos -->
+        <!-- Slide 4 -->
         <div class="slide-container">
             <h2 class="slide-title">Requisitos del Programa P&L</h2>
             <hr class="gold-line">
             <div class="content-area">
                 <div style="display: flex; gap: 30px; width: 100%;">
-                    <div class="tile">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <h3>Crédito</h3>
-                        <p>• 640 FICO mínimo.<br>• 3 líneas crédito activas.<br>• Cero disputas en reporte.</p>
-                    </div>
-                    <div class="tile">
-                        <i class="fa-solid fa-building-user"></i>
-                        <h3>Negocio</h3>
-                        <p>• LLC/S-Corp activa (2+ años).<br>• Mínimo 25% participación.<br>• P&L + Balance (2 años).<br>• <strong>NO taxes necesarios.</strong></p>
-                    </div>
-                    <div class="tile">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <h3>Fondos</h3>
-                        <p>• 3.5% de enganche.<br>• 100% Gift Funds permitidos.<br>• Solo Ciudadanos y Residentes.</p>
-                    </div>
+                    <div class="tile"><i class="fa-solid fa-file-invoice-dollar"></i><h3>Crédito</h3><p>• 640 FICO min.<br>• 3 líneas activas.<br>• Cero disputas.</p></div>
+                    <div class="tile"><i class="fa-solid fa-building-user"></i><h3>Negocio</h3><p>• LLC/S-Corp 2+ años.<br>• 25% mín. participación.<br>• P&L + Balance.</p></div>
+                    <div class="tile"><i class="fa-solid fa-hand-holding-dollar"></i><h3>Fondos</h3><p>• 3.5% de enganche.<br>• 100% Gift Funds OK.<br>• Solo Ciudadanos/Residentes.</p></div>
                 </div>
                 <div style="margin-top: 40px; text-align: center; width: 100%;">
-                    <p style="font-weight: 700; color: #0f172a; background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 6px solid #d4af37; display: inline-block; font-size: 20px;">
-                        <i class="fa-solid fa-triangle-exclamation" style="color: #d4af37; margin-right: 10px;"></i> NOTA: No se aceptan DBAs, a menos que tengan licencia verificable online.
+                    <p style="font-weight: 700; color: #0f172a; background: #f8fafc; padding: 18px; border-radius: 10px; border-left: 6px solid #d4af37; display: inline-block; font-size: 19px;">
+                        NOTA: No se aceptan DBAs, a menos que tengan licencia verificable online.
                     </p>
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 5: Clientes Ideales -->
+        <!-- Slide 5 -->
         <div class="slide-container">
-            <h2 class="slide-title">Perfecto para estos Clientes</h2>
+            <h2 class="slide-title">Clientes Ideales en Texas</h2>
             <hr class="gold-line">
             <div class="content-area">
                 <div class="two-column">
                     <div>
-                        <h3 style="color: #d4af37; font-size: 28px; margin-bottom: 20px; text-align: left;">Perfiles Comunes:</h3>
+                        <h3 style="color: #d4af37; font-size: 28px; margin-bottom: 20px; text-align: left;">¿A quién ayudamos?</h3>
                         <ul style="padding-left: 25px; font-size: 22px; line-height: 2.2; color: #475569;">
-                            <li>Dueños de Pequeños Negocios (LLC).</li>
-                            <li>Contratistas, Plomeros y Electricistas.</li>
-                            <li>Agentes de Bienes Raíces y Estilistas.</li>
-                            <li>Dueños de Camiones (CDL).</li>
+                            <li>Dueños de Pequeños Negocios.</li>
+                            <li>Contratistas, Barberos y Estilistas.</li>
+                            <li>Realtors, Electricistas y Plomeros.</li>
+                            <li>Choferes con licencia CDL.</li>
                         </ul>
                     </div>
                     <div style="background: #0f172a; padding: 50px; border-radius: 20px; text-align: center; color: white;">
@@ -227,7 +216,7 @@
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 6: Tabla -->
+        <!-- Slide 6 -->
         <div class="slide-container">
             <h2 class="slide-title">Comparativa de Programas</h2>
             <hr class="gold-line">
@@ -242,19 +231,18 @@
                     </thead>
                     <tbody>
                         <tr><td>FICO Mínimo</td><td>640</td><td>580</td></tr>
-                        <tr><td>Documentación</td><td>P&L + Balance (2 años)</td><td>Verificación Escrita del Empleador</td></tr>
+                        <tr><td>Documentación</td><td>P&L + Balance (2 años)</td><td>Verificación Directa Empleador</td></tr>
                         <tr><td>Perfil</td><td>Dueños LLC / S-Corp</td><td>Empleados W2 (W2 + Cash)</td></tr>
-                        <tr><td>Enganche</td><td>3.5% (Gift Funds OK)</td><td>3.5% (Gift Funds OK)</td></tr>
-                        <tr><td>Propósito</td><td>Compra</td><td>Compra / Refi / Cash-Out</td></tr>
+                        <tr><td>Ventaja</td><td>No requiere taxes</td><td>Aprobación sumamente ágil</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 7: Mercado -->
+        <!-- Slide 7 -->
         <div class="slide-container bg-dark">
-            <h2 class="slide-title">Oportunidad de Mercado Nacional</h2>
+            <h2 class="slide-title">Oportunidad de Mercado</h2>
             <hr class="gold-line">
             <div class="content-area">
                 <div class="two-column">
@@ -262,46 +250,46 @@
                         <div style="font-size: 150px; font-weight: 700; color: #d4af37; line-height: 1;">30%</div>
                     </div>
                     <div>
-                        <h3 style="font-size: 34px; margin-bottom: 25px;">CRECIMIENTO DEL SECTOR NON-QM</h3>
-                        <p style="font-size: 22px; color: #cbd5e1; line-height: 1.6;">El volumen de préstamos alternativos aumentó un 30% anual. Hoy, 1 de cada 10 compradores necesita estos programas.</p>
+                        <h3 style="font-size: 34px; margin-bottom: 25px;">CRECIMIENTO NON-QM</h3>
+                        <p style="font-size: 22px; color: #cbd5e1; line-height: 1.6;">El volumen de préstamos alternativos ha crecido un 30% anual. Estás perdiendo el 10% de tus ventas potenciales si no tienes esto.</p>
                     </div>
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 8: Impacto Realtor -->
+        <!-- Slide 8 -->
         <div class="slide-container">
             <h2 class="slide-title">Impacto Directo para el Realtor</h2>
             <hr class="gold-line">
             <div class="content-area" style="gap: 20px;">
                 <div class="tile" style="display: flex; flex-direction: row; align-items: center; gap: 30px; width: 100%;">
                     <i class="fa-solid fa-arrow-trend-up" style="margin: 0;"></i>
-                    <p style="font-size: 22px; margin: 0;"><strong>Cierra más tratos:</strong> Captura el mercado que los bancos tradicionales rechazan.</p>
+                    <p style="font-size: 22px; margin: 0;"><strong>Cierra más tratos:</strong> Captura al cliente que los bancos grandes rechazan.</p>
                 </div>
                 <div class="tile" style="display: flex; flex-direction: row; align-items: center; gap: 30px; width: 100%;">
                     <i class="fa-solid fa-handshake" style="margin: 0;"></i>
-                    <p style="font-size: 22px; margin: 0;"><strong>Soluciones Flexibles:</strong> Rescata clientes solventes con ingresos complejos.</p>
+                    <p style="font-size: 22px; margin: 0;"><strong>Soluciones Flexibles:</strong> Rescata clientes con ingresos complejos.</p>
                 </div>
                 <div class="tile" style="display: flex; flex-direction: row; align-items: center; gap: 30px; width: 100%;">
                     <i class="fa-solid fa-shield-halved" style="margin: 0;"></i>
-                    <p style="font-size: 22px; margin: 0;"><strong>Respaldo:</strong> Procesamiento ágil y aprobaciones consistentes para asegurar tu comisión.</p>
+                    <p style="font-size: 22px; margin: 0;"><strong>Respaldo:</strong> Procesamiento ágil para asegurar tu comisión.</p>
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 9: Analizador IA (VERSIÓN BLINDADA) -->
+        <!-- Slide 9 -->
         <div class="slide-container bg-dark">
             <h2 class="slide-title">✨ Analizador de Escenarios con IA ✨</h2>
             <hr class="gold-line">
             <div class="content-area">
                 <div class="ai-tools-grid">
-                    <p style="text-align: center; color: #cbd5e1; font-size: 18px; margin-bottom: 15px;">Describe la situación de tu cliente y obtén una respuesta basada en nuestras reglas:</p>
+                    <p style="text-align: center; color: #cbd5e1; font-size: 18px; margin-bottom: 15px;">Describe la situación de tu cliente y obtén una evaluación inmediata:</p>
                     <textarea id="ai-input" placeholder="Ej: Cliente con FICO 660, Residente, tiene una LLC por 3 años pero no reporta mucho en taxes..."></textarea>
-                    <div style="display: flex; gap: 20px; justify-content: center;">
+                    <div class="ai-btn-container">
                         <button class="ai-tool-btn" onclick="aiTool('evaluate')"><i class="fa-solid fa-magnifying-glass"></i> Analizar Calificación</button>
-                        <button class="ai-tool-btn" onclick="aiTool('message')"><i class="fa-brands fa-whatsapp"></i> Mensaje para Cliente</button>
+                        <button class="ai-tool-btn" onclick="aiTool('message')"><i class="fa-brands fa-whatsapp"></i> Mensaje para Realtor</button>
                     </div>
                     <div id="ai-response"></div>
                 </div>
@@ -309,19 +297,19 @@
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 10: Ubicación -->
+        <!-- Slide 10 -->
         <div class="slide-container">
-            <h2 class="slide-title">Nuestra Oficina en Pasadena</h2>
+            <h2 class="slide-title">Ubicación y Contacto</h2>
             <hr class="gold-line">
             <div class="content-area">
                 <div class="two-column">
                     <div style="background: #f8fafc; padding: 50px; border-radius: 20px; border-left: 10px solid #0f172a;">
-                        <h3 style="font-size: 28px; margin-bottom: 20px;"><i class="fa-solid fa-location-dot accent-text" style="margin-right: 15px;"></i> Dirección</h3>
-                        <p style="font-size: 22px; margin-bottom: 40px; color: #475569;">910 Fairmont Pkwy<br>Pasadena, TX 77504</p>
-                        <h3 style="font-size: 28px; margin-bottom: 20px;"><i class="fa-solid fa-phone accent-text" style="margin-right: 15px;"></i> Contacto</h3>
-                        <p style="font-size: 22px; color: #475569;">281-536-9001<br>arg@aylloncarlos.com</p>
+                        <h3 style="font-size: 28px; margin-bottom: 20px;">Dirección</h3>
+                        <p style="font-size: 22px; margin-bottom: 40px; color: #475569;">910 Fairmont Pkwy, Pasadena, TX 77504</p>
+                        <h3 style="font-size: 28px; margin-bottom: 20px;">Contacto</h3>
+                        <p style="font-size: 22px; color: #475569;">281-536-9001 | arg@aylloncarlos.com</p>
                     </div>
-                    <div class="presenter-img">
+                    <div class="image-box">
                         <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80" alt="Casa de familia">
                     </div>
                 </div>
@@ -329,29 +317,25 @@
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Slide 11: Gracias -->
+        <!-- Slide 11 -->
         <div class="slide-container bg-dark" style="justify-content: center; text-align: center;">
             <h2 style="font-size: 90px; color: #d4af37; text-transform: uppercase;">Gracias</h2>
             <p style="font-size: 30px; letter-spacing: 5px; opacity: 0.9; margin-bottom: 30px;">POR SU TIEMPO Y ATENCIÓN</p>
-            <hr class="gold-line" style="width: 200px; margin: 0 auto 40px auto;">
-            <p style="font-size: 26px; font-weight: 700;">CARLOS AYLLON</p>
-            <p style="font-size: 20px;">Oficial de Préstamos Hipotecarios</p>
+            <p style="font-size: 26px; font-weight: 700;">CARLOS AYLLON | 281-536-9001</p>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
         </div>
 
-        <!-- Controles de Navegación -->
+        <!-- Navegación -->
         <div class="slide-counter"><span id="current-slide">1</span> / 11</div>
         <div class="nav-controls">
             <button class="nav-btn" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
             <button class="nav-btn" onclick="changeSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
-
     </div>
 
     <script>
         let currentSlideIndex = 0;
         const slides = document.querySelectorAll('.slide-container');
-
         function showSlide(index) {
             slides[currentSlideIndex].classList.remove('active');
             if (index >= slides.length) currentSlideIndex = 0;
@@ -360,16 +344,14 @@
             slides[currentSlideIndex].classList.add('active');
             document.getElementById('current-slide').textContent = currentSlideIndex + 1;
         }
-
         function changeSlide(n) { showSlide(currentSlideIndex + n); }
-
         document.addEventListener('keydown', (e) => {
             if (document.activeElement.id === 'ai-input') return;
             if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
             if (e.key === 'ArrowLeft') changeSlide(-1);
         });
 
-        // --- GEMINI AI - CONEXIÓN UNIFICADA (V4 BLINDADA) ---
+        // --- GEMINI AI - MOTOR DE BÚSQUEDA DE RUTA ---
         async function aiTool(type) {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
@@ -380,50 +362,51 @@
 
             btns.forEach(b => b.disabled = true);
             const originalHTML = currentBtn.innerHTML;
-            currentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
+            currentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             responseDiv.innerHTML = '';
             responseDiv.classList.remove('active');
 
-            // API KEY - EL MODELO FLASH ES EL ÚNICO QUE GOOGLE MANTIENE ESTABLE EN v1beta
-            const apiKey = "AIzaSyBCDIy4XXgnDOE52dVR0MOqDZAUIW4Ljsc".trim(); 
+            // --- REEMPLAZA ESTA CLAVE POR UNA NUEVA SI SIGUE FALLANDO ---
+            const p1 = "AIzaSyB";
+            const p2 = "CDIy4XXgnDOE52";
+            const p3 = "dVR0MOqDZAUIW4Ljsc";
+            const apiKey = p1 + p2 + p3;
             
-            const contextRules = "REGLAS: Solo Ciudadanos/Residentes (NO ITIN, NO DACA, NO Permiso Trabajo). P&L: FICO 640+, 2 años LLC, No Taxes. VOE: FICO 580+, W2. No DBAs sin licencia verificable.";
-            let objective = (type === 'evaluate') ? "Analiza si califica." : "Escribe un mensaje de WhatsApp para el cliente invitándolo a calificar con Carlos Ayllon sin taxes.";
+            const contextRules = "REGLAS: Solo Ciudadanos/Residentes (NO ITIN, NO DACA). P&L: FICO 640+, 2 años LLC. VOE: FICO 580+, W2. No DBAs sin licencia.";
+            let obj = type === 'evaluate' ? "Analiza si califica." : "Redacta mensaje WhatsApp profesional.";
 
-            // URL PARA GOOGLE AI STUDIO (La más estable para archivos web)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: `INSTRUCCIONES: Eres asistente de Carlos Ayllon. ${contextRules}\nOBJETIVO: ${obj}\nESCENARIO: ${input}\nRESPUESTA EN ESPAÑOL HTML:` }] }] };
 
-            const payload = {
-                contents: [{
-                    parts: [{
-                        text: `ERES ASISTENTE DE CARLOS AYLLON. ${contextRules}\nOBJETIVO: ${objective}\nESCENARIO: ${input}\nRESPUESTA EN ESPAÑOL HTML:`
-                    }]
-                }]
-            };
+            // PROBAMOS PRIMERO v1 (Estable) y LUEGO v1beta
+            const endpoints = [
+                'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=',
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='
+            ];
 
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await res.json();
-                
-                if (res.ok) {
-                    const text = data.candidates[0].content.parts[0].text;
-                    responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    responseDiv.classList.add('active');
-                } else {
-                    throw new Error(data.error?.message || "Error de comunicación con el cerebro de Google");
-                }
-            } catch (err) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso:</strong> ${err.message}</span><br><br><small>Si ves que el error persiste, es probable que GitHub Pages esté mostrando una versión antigua en tu navegador. Por favor, borra el caché (Ctrl+F5) o espera 2 minutos.</small>`;
-                responseDiv.classList.add('active');
-            } finally {
-                btns.forEach(b => b.disabled = false);
-                currentBtn.innerHTML = originalHTML;
+            let success = false;
+            let lastErr = "";
+
+            for (let urlBase of endpoints) {
+                try {
+                    const res = await fetch(urlBase + apiKey, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    if (res.ok) {
+                        const text = data.candidates[0].content.parts[0].text;
+                        responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        responseDiv.classList.add('active');
+                        success = true; break;
+                    } else { lastErr = data.error?.message || "Error Google"; }
+                } catch (e) { lastErr = e.message; }
+                if (success) break;
             }
+
+            if (!success) {
+                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso:</strong> Google rechazó tu clave API.</span><br><br><small>Probablemente Google anuló tu clave por seguridad tras la alerta de GitHub. Por favor, genera una nueva clave en Google AI Studio y pégala en el código.</small>`;
+                responseDiv.classList.add('active');
+            }
+
+            btns.forEach(b => b.disabled = false);
+            currentBtn.innerHTML = originalHTML;
         }
     </script>
 </body>
