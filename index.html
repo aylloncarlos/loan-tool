@@ -163,7 +163,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #0284c7; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);">
-                    SISTEMA ACTUALIZADO V12.0 - IA FINAL
+                    SISTEMA ACTUALIZADO V13.0 - ERRORES CORREGIDOS
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -384,26 +384,48 @@
     <script>
         let currentSlideIndex = 0;
         const slides = document.querySelectorAll('.slide-container');
-        document.getElementById('total-slides').textContent = slides.length;
-
-        function showSlide(index) {
-            slides[currentSlideIndex].classList.remove('active');
-            if (index >= slides.length) currentSlideIndex = 0;
-            else if (index < 0) currentSlideIndex = slides.length - 1;
-            else currentSlideIndex = index;
-            slides[currentSlideIndex].classList.add('active');
-            document.getElementById('current-slide').textContent = currentSlideIndex + 1;
+        const totalSlidesElement = document.getElementById('total-slides');
+        
+        if (totalSlidesElement) {
+            totalSlidesElement.textContent = slides.length;
         }
 
-        function changeSlide(n) { showSlide(currentSlideIndex + n); }
+        function showSlide(index) {
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
 
-        document.addEventListener('keydown', (e) => {
+            if (index >= slides.length) {
+                currentSlideIndex = 0;
+            } else if (index < 0) {
+                currentSlideIndex = slides.length - 1;
+            } else {
+                currentSlideIndex = index;
+            }
+
+            slides[currentSlideIndex].classList.add('active');
+            
+            const currentSlideElement = document.getElementById('current-slide');
+            if (currentSlideElement) {
+                currentSlideElement.textContent = currentSlideIndex + 1;
+            }
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlideIndex + direction);
+        }
+
+        document.addEventListener('keydown', function(event) {
             if (document.activeElement.id === 'ai-input') return;
-            if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
-            if (e.key === 'ArrowLeft') changeSlide(-1);
+
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                changeSlide(1);
+            } else if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
         });
 
-        // --- GEMINI AI - SOLUCIÓN ESTANDARIZADA FINAL ---
+        // --- GEMINI AI - SOLUCIÓN PARA ENTORNO DE PREVISUALIZACIÓN ---
         async function analyzeScenario() {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
@@ -420,14 +442,12 @@
             responseDiv.innerHTML = '';
             responseDiv.classList.remove('active-response');
 
-            // Llave API fragmentada (La que proporcionaste)
-            const p1 = "AIzaSyChDKc"; 
-            const p2 = "ZkHeb-VLVHw9wA";
-            const p3 = "b10GqhhP5AbCqk";
-            const apiKey = (p1 + p2 + p3).trim();
-            
-            // Construimos el prompt integrado en el contenido para máxima compatibilidad
-            const promptText = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
+            // En este entorno específico (Canvas), la llave API es inyectada automáticamente. 
+            // Debe estar vacía para no chocar con el sistema.
+            const apiKey = ""; 
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const systemPrompt = `Eres el asistente experto de préstamos hipotecarios de Carlos Ayllon (NMLS# 2218673). 
             Tu trabajo es ayudar a los agentes de bienes raíces evaluando rápidamente los escenarios de sus clientes.
             
             REGLAS ESTRICTAS:
@@ -435,50 +455,44 @@
             2. PROGRAMA P&L (3.5% down): FICO mínimo 640 (3 scores), 2 años LLC/S-Corp. NO SE ADMITEN DBAs. NO se requieren taxes.
             3. PROGRAMA VOE (3.5% down): FICO mínimo 580. Para empleados W2.
             4. Responde en español, sé profesional y usa formato HTML simple (<strong>, <br>, <ul>). No uses markdown de asteriscos.
-            5. Termina invitando al agente a contactar a Carlos Ayllon al 281-536-9001.
-
-            ESCENARIO DEL CLIENTE A EVALUAR:
-            ${input}`;
+            5. Termina invitando al agente a contactar a Carlos Ayllon al 281-536-9001.`;
 
             const payload = {
-                contents: [{ parts: [{ text: promptText }] }]
+                contents: [{ parts: [{ text: "ESCENARIO DEL CLIENTE A EVALUAR:\n" + input }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
             };
 
-            // Lista de endpoints oficiales públicos. Intentará Flash primero, y si falla intentará Pro.
-            const endpoints = [
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
-            ];
-
-            let success = false;
-            let lastError = "";
-
-            for (const url of endpoints) {
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const data = await res.json();
-                    
-                    if (res.ok && data.candidates && data.candidates.length > 0) {
-                        const text = data.candidates[0].content.parts[0].text;
-                        responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                        responseDiv.classList.add('active-response');
-                        success = true;
-                        break; // Salimos del bucle si fue exitoso
-                    } else {
-                        lastError = data.error?.message || "Error desconocido en el modelo.";
+            // Sistema de reintentos exigido por la configuración
+            const fetchWithBackoff = async () => {
+                const delays = [1000, 2000, 4000, 8000, 16000];
+                for (let i = 0; i < delays.length; i++) {
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) return await res.json();
+                        throw new Error(`Error de servidor (${res.status})`);
+                    } catch (error) {
+                        if (i === delays.length - 1) throw error;
+                        await new Promise(resolve => setTimeout(resolve, delays[i]));
                     }
-                } catch (err) {
-                    lastError = err.message;
                 }
-            }
+            };
 
-            if (!success) {
-                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de conexión:</strong> ${lastError}</span><br><br><small>Revisa que la clave API esté activa en tu cuenta de Google.</small>`;
+            try {
+                const data = await fetchWithBackoff();
+                
+                if (data.candidates && data.candidates.length > 0) {
+                    const text = data.candidates[0].content.parts[0].text;
+                    responseDiv.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    responseDiv.classList.add('active-response');
+                } else {
+                    throw new Error("El modelo no devolvió una respuesta válida.");
+                }
+            } catch (err) {
+                responseDiv.innerHTML = `<span style="color:#b91c1c"><strong>Aviso de conexión:</strong> ${err.message}</span><br><br><small>Es posible que el entorno local esté bloqueando el acceso. Intenta probarlo desde el servidor de GitHub.</small>`;
                 responseDiv.classList.add('active-response');
             }
 
