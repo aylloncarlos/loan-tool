@@ -187,7 +187,7 @@
                 <hr class="gold-line" style="width: 120px;">
                 <p style="font-size: 24px; color: #cbd5e1; letter-spacing: 3px; text-transform: uppercase;">Soluciones Exclusivas para Profesionales de Bienes Raíces</p>
                 <div style="margin-top: 30px; background: #16a34a; color: white; padding: 15px 30px; display: inline-block; font-weight: 900; border-radius: 8px; font-size: 20px; border: 4px solid white; box-shadow: 0 0 20px rgba(22, 163, 74, 0.5);">
-                    SISTEMA ACTUALIZADO V27.0 - MODELO DINÁMICO INTELIGENTE
+                    SISTEMA ACTUALIZADO V28.0 - GESTIÓN DE SALDO ACTIVADA
                 </div>
             </div>
             <div class="footer">CARLOS AYLLON | NMLS# 2218673 | 281-536-9001 | ARG@AYLLONCARLOS.COM</div>
@@ -432,7 +432,7 @@
             else if (event.key === 'ArrowLeft') changeSlide(-1);
         });
 
-        // --- LÓGICA DE LA IA DINÁMICA (2026 SAFE) ---
+        // --- LÓGICA DE LA IA DINÁMICA (CON MANEJO DE SALDO) ---
         async function analyzeScenario(actionType) {
             const input = document.getElementById('ai-input').value;
             const responseDiv = document.getElementById('ai-response');
@@ -448,7 +448,6 @@
             responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Inicializando conexión segura...';
             responseDiv.classList.add('active-response');
 
-            // 1. Determinar el objetivo
             let objective = "";
             if (actionType === 'evaluar') objective = "Evalúa si el cliente califica. Sé directo. Si tiene ITIN, DACA o Permiso de Trabajo, explica que NO califica.";
             else if (actionType === 'mensaje') objective = "Redacta un mensaje persuasivo y amistoso de WhatsApp dirigido al agente de bienes raíces o cliente sobre este escenario.";
@@ -465,52 +464,41 @@
             const fullMessage = systemPrompt + "\n\nESCENARIO DEL CLIENTE:\n" + input;
             const payload = { contents: [{ parts: [{ text: fullMessage }] }] };
 
-            // 2. DETECTOR DE ENTORNO (CANVAS VS GITHUB)
             const hostname = window.location.hostname;
             const isLocalPreview = hostname.includes("goog") || hostname === "" || hostname === "localhost" || hostname === "127.0.0.1" || hostname.includes("webcontainer");
             
             let fetchUrl = "";
 
             if (isLocalPreview) {
-                // Modo Prueba: Usa la llave vacía y el modelo preview requerido por la plataforma
                 fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`;
             } else {
-                // Modo Producción (GitHub Pages): Auto-descubrimiento del modelo Flash disponible hoy
                 const p1 = "AIzaSyChDKc"; 
                 const p2 = "ZkHeb-VLVHw9wA";
                 const p3 = "b10GqhhP5AbCqk";
                 const apiKey = (p1 + p2 + p3).trim(); 
                 
                 try {
-                    responseDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Identificando modelo compatible...';
-                    
-                    // Preguntamos a Google qué modelos existen para esta llave en este momento
                     const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-                    if (!listRes.ok) throw new Error("No se pudo validar la API Key con Google.");
+                    if (!listRes.ok) {
+                        const errData = await listRes.json();
+                        throw new Error(errData.error?.message || "Error al conectar con Google.");
+                    }
                     const listData = await listRes.json();
-                    
-                    // Filtramos los modelos que sirven para generar texto
                     const available = listData.models.filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"));
-                    
-                    // BUSCAMOS ESPECÍFICAMENTE LA PALABRA "FLASH" (Que es la capa gratuita/rápida, ya sea 1.5, 2.5, 3.0, etc.)
                     const flashModel = available.find(m => m.name.toLowerCase().includes("flash"));
-                    
-                    // Tomamos el nombre exacto que Google nos dio
                     const targetModel = flashModel ? flashModel.name : available[0].name;
-                    
-                    // Construimos la URL con ese modelo garantizado
                     fetchUrl = `https://generativelanguage.googleapis.com/v1beta/${targetModel}:generateContent?key=${apiKey}`;
-                    
-                    responseDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Conectando con IA (${targetModel.split('/')[1]})...`;
-                    
                 } catch (e) {
-                    responseDiv.innerHTML = `<strong>Error de Configuración:</strong> ${e.message}`;
+                    let friendlyError = e.message;
+                    if (e.message.includes("depleted") || e.message.includes("credits")) {
+                        friendlyError = "<strong>⚠️ CRÉDITOS AGOTADOS:</strong> Google indica que tu saldo es $0. Debes añadir fondos en tu cuenta de <a href='https://aistudio.google.com/app/billing' target='_blank'>AI Studio Billing</a> para continuar.";
+                    }
+                    responseDiv.innerHTML = `<strong>Error de Configuración:</strong> ${friendlyError}`;
                     btns.forEach(btn => btn.disabled = false);
                     return;
                 }
             }
 
-            // 3. LLAMADA FINAL AL MODELO IDENTIFICADO
             try {
                 const res = await fetch(fetchUrl, {
                     method: 'POST',
@@ -526,7 +514,11 @@
                     text = text.replace(/```html/g, '').replace(/```/g, '');
                     responseDiv.innerHTML = text;
                 } else {
-                    responseDiv.innerHTML = `<strong>Error del Modelo:</strong> ${data.error?.message || 'Google no generó contenido.'}`;
+                    let errorMsg = data.error?.message || 'Google no generó contenido.';
+                    if (errorMsg.includes("depleted") || errorMsg.includes("credits")) {
+                        errorMsg = "<strong>⚠️ CRÉDITOS AGOTADOS:</strong> Tu cuenta de Google tiene saldo $0.00. Añade fondos en <a href='https://aistudio.google.com/app/billing' target='_blank'>Google AI Studio</a> para activar la IA.";
+                    }
+                    responseDiv.innerHTML = errorMsg;
                 }
             } catch (err) {
                 responseDiv.innerHTML = `<strong>Falla de Conexión:</strong> ${err.message}`;
